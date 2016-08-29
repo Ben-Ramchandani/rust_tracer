@@ -3,32 +3,32 @@
 pub struct Vector3 {
     pub x: f64,
     pub y: f64,
-    pub z: f64, 
-}   
+    pub z: f64,
+}
 
 impl Vector3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vector3 {
-        Vector3 {x: x, y: y, z: z}
+        Vector3 { x: x, y: y, z: z }
     }
 
     pub fn dot(self, v: Vector3) -> f64 {
         self.x * v.x + self.y * v.y + self.z * v.z
     }
-    
+
     fn len_sq(self) -> f64 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
     pub fn len(self) -> f64 {
         self.len_sq().sqrt()
-    }   
-    
+    }
+
     pub fn cross(self, v: Vector3) -> Vector3 {
-        Vector3 { 
+        Vector3 {
             x: self.y * v.z - self.z * v.y,
             y: self.z * v.x - self.x * v.z,
-            z: self.x * v.y - self.y * v.x
-        }   
+            z: self.x * v.y - self.y * v.x,
+        }
     }
 
     pub fn normalize(self) -> Vector3 {
@@ -36,8 +36,8 @@ impl Vector3 {
         return Vector3 {
             x: self.x / len,
             y: self.y / len,
-            z: self.z / len
-        }
+            z: self.z / len,
+        };
     }
 }
 
@@ -48,7 +48,7 @@ impl ::std::ops::Add for Vector3 {
         Vector3 {
             x: self.x + other.x,
             y: self.y + other.y,
-            z: self.z + other.z
+            z: self.z + other.z,
         }
     }
 }
@@ -60,7 +60,7 @@ impl ::std::ops::Neg for Vector3 {
         Vector3 {
             x: -self.x,
             y: -self.y,
-            z: -self.z
+            z: -self.z,
         }
     }
 }
@@ -72,7 +72,7 @@ impl ::std::ops::Sub for Vector3 {
         Vector3 {
             x: self.x - other.x,
             y: self.y - other.y,
-            z: self.z - other.z
+            z: self.z - other.z,
         }
     }
 }
@@ -84,7 +84,7 @@ impl ::std::ops::Mul<f64> for Vector3 {
         Vector3 {
             x: self.x * num,
             y: self.y * num,
-            z: self.z * num
+            z: self.z * num,
         }
     }
 }
@@ -96,5 +96,3 @@ impl ::std::ops::Div<f64> for Vector3 {
         self * (1.0 / num)
     }
 }
-
-

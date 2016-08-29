@@ -6,8 +6,7 @@ use shape::{ANGLE_EPSILON, INTERSECT_EPSILON};
 pub struct Plane {
     // Normal must point away from origin such that `origin_distance >= 0.0`.
     pub normal: Vector3,
-    pub origin_distance: f64,
-    //color: Color
+    pub origin_distance: f64, // color: Color
 }
 
 impl Shape for Plane {
@@ -19,7 +18,7 @@ impl Shape for Plane {
             // Ray is parallel to plane
             return None::<(f64, Vector3)>;
         }
-    
+
         let s: f64 = self.origin_distance - ray_origin.dot(self.normal);
         let t: f64 = s / intersect_cosine;
 

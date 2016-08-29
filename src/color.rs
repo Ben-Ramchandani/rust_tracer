@@ -10,18 +10,16 @@ impl Color {
         let result = Color {
             red: (r as f64) / 255.0,
             green: (g as f64) / 255.0,
-            blue: (b as f64) / 255.0
+            blue: (b as f64) / 255.0,
         };
         if result.red > 1.0 || result.green > 1.0 || result.blue > 1.0 {
             panic!("Color is invalid: {:?}", result);
         }
         return result;
     }
-    
+
     pub fn to_rgb(&self) -> (u8, u8, u8) {
-        ((self.red * 255.0) as u8,
-        (self.blue * 255.0) as u8,
-        (self.green * 255.0) as u8)
+        ((self.red * 255.0) as u8, (self.blue * 255.0) as u8, (self.green * 255.0) as u8)
     }
 }
 
@@ -32,7 +30,7 @@ impl ::std::ops::Mul for Color {
         Color {
             red: self.red * other.red,
             green: self.green * other.green,
-            blue: self.blue * other.blue
+            blue: self.blue * other.blue,
         }
     }
 }

@@ -19,12 +19,14 @@ pub trait Shape {
     }
 }
 
-trait Drawable : Shape {
+trait Drawable: Shape {
     fn get_colour(&self) -> Color;
 }
 
-pub const ORIGIN: Vector3 = Vector3 {x: 0.0, y: 0.0, z: 0.0};
+pub const ORIGIN: Vector3 = Vector3 {
+    x: 0.0,
+    y: 0.0,
+    z: 0.0,
+};
 pub const ANGLE_EPSILON: f64 = 0.000001;
 pub const INTERSECT_EPSILON: f64 = 0.000001;
-
-

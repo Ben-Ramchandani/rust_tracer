@@ -7,6 +7,8 @@ mod test;
 mod pnm;
 use vec3::Vector3;
 
+mod cubic;
+
 pub type Direction = Vector3;
 pub type Origin = Vector3;
 
