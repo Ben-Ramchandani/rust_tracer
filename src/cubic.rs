@@ -1,5 +1,3 @@
-use std::f64;
-
 
 /// Solve equations of the form `ax^2 + bx + c = 0`.
 #[derive(PartialEq, Debug)]
@@ -185,17 +183,17 @@ fn flt_cmp(x: f64, y: f64) -> bool {
 
 fn solve_quartic_smallest_positive_real(a: f64, b: f64, c: f64, d: f64, e: f64) -> Option<f64> {
     let mut smallest_real = -1.0;
-    let ((r1, _), (r2, _), (r3, _), (r4, _)) = solve_quartic(a, b, c, d, e);
-    if r1 < smallest_real && r1 > EPSILON {
+    let ((r1, i1), (r2, i2), (r3, i3), (r4, i4)) = solve_quartic(a, b, c, d, e);
+    if r1 < smallest_real && r1 > EPSILON && i1.abs() < EPSILON {
         smallest_real = r1;
     }
-        if r2 < smallest_real && r2 > EPSILON {
+        if r2 < smallest_real && r2 > EPSILON && i2.abs() < EPSILON {
         smallest_real = r2;
     }
-        if r3 < smallest_real && r3 > EPSILON {
+        if r3 < smallest_real && r3 > EPSILON && i3.abs() < EPSILON {
         smallest_real = r3;
     }
-        if r4 < smallest_real && r4 > EPSILON {
+        if r4 < smallest_real && r4 > EPSILON && i4.abs() < EPSILON {
         smallest_real = r4;
     }
     if smallest_real > EPSILON {
@@ -213,10 +211,44 @@ fn cmplx_cmp_4((x, y, z, u): (Cmplx, Cmplx, Cmplx, Cmplx), (x1, y1, z1, u1): (Cm
     return cmplx_cmp(x, x1) && cmplx_cmp(y, y1) && cmplx_cmp(z, z1) && cmplx_cmp(u, u1);
 }
 
+fn cmplx_pow(c: Cmplx, n: i32) -> Cmplx {
+    let mut r = (1.0, 0.0);
+    for _ in 0..n {
+        r = cmplx_mult(r, c);
+    }
+    return r;
+}
+
+fn check_solution(solution: Cmplx, (a, b, c, d, e): (f64, f64, f64, f64, f64)) -> () {
+    let mut t = cmplx_mult((a, 0.0), cmplx_pow(solution, 4));
+    t = cmplx_add(t, cmplx_mult((b, 0.0), cmplx_pow(solution, 3)));
+    t = cmplx_add(t, cmplx_mult((c, 0.0), cmplx_pow(solution, 2)));
+    t = cmplx_add(t, cmplx_mult((d, 0.0), cmplx_pow(solution, 1)));
+    let (r, i) = cmplx_add(t, (e, 0.0));
+    assert!(r.abs() < EPSILON && i.abs() < EPSILON);
+}
+
+fn check_quartic(a: f64, b: f64, c: f64, d: f64, e: f64) -> () {
+    let (s1, s2, s3, s4) = solve_quartic(a, b, c, d, e);
+    check_solution(s1, (a, b, c, d, e));
+    check_solution(s2, (a, b, c, d, e));
+    check_solution(s3, (a, b, c, d, e));
+    check_solution(s4, (a, b, c, d, e));
+}
+
 #[test]
 fn test_quartic() {
     assert!(cmplx_cmp_4(solve_quartic(3.0, 6.0, -123.0, -126.0, 1080.0), ((5.0, 0.0), (3.0, 0.0), (-4.0, 0.0), (-6.0, 0.0))));
     assert!(cmplx_cmp_4(solve_quartic(1.0, -5.0/20.0, -17.0/20.0, 29.0/20.0, -87.0/20.0), ((1.48758311033, 0.0), (0.222210408124, 1.29967219908), (0.222210408124, -1.29967219908), (-1.68200392658, 0.0))));
+    check_quartic(1.0, 0.0, 0.0, 0.0, 0.0);
+    check_quartic(1.0, 0.0, 0.0, 0.0, -1.0);
+    check_quartic(1.0, 0.0, 0.0, 0.0, 1.0);
+    check_quartic(3671.068438605304, -1746.3860099225747, -2300.726389983724, 3933.893547694215, -310.96134916444583);
+    check_quartic(4837.747294590245, 3850.56239982792, 1071.5065628786324, 4246.753768541942, -4916.426421195232);
+    check_quartic(4045.668098223205, 3521.431975103304, 1345.5650293366095, -658.7986571357129, -2023.230493246667);
+    check_quartic(-4532.303951662107, 3348.9546185524464, -1337.624783475272, -545.8240198774666, -2151.2666752465716);
+    check_quartic(-3036.420315870136, -9139.208975460038, -4672.021580422994, -715.6670967716772, -9720.333591987857);
+    check_quartic(0.0010147759073859076, 8.15079496605753e-06, -0.0019196993484370938, -0.004747046679606099, -0.0019003462488357658);
 }
 
 #[test]
