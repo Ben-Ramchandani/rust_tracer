@@ -21,12 +21,12 @@ pub struct Torus {
 
 impl Shape for Torus {
     fn intersect_without_normal(&self, (b, a): Ray) -> Option<(f64)> {
-        println!("a: {:?}", a);
-        println!("b: {:?}", b);
+
+
         let a_dot_a = a.dot(a);
-        println!("a.a: {:?}", a_dot_a);
+
         let a_dot_b = a.dot(b);
-        println!("a.b: {:?}", a_dot_b);
+
         let radius2 = self.radius * self.radius;
         let minor_radius2 = self.tube_radius * self.tube_radius;
         let k = a_dot_a - minor_radius2 - radius2;
@@ -34,9 +34,9 @@ impl Shape for Torus {
         let t2 = 2.0 * (2.0 * a_dot_b * a_dot_b + k + 2.0 * radius2 * b.z * b.z);
         let t3 = 4.0 * (k * a_dot_b + 2.0 * radius2 * a.z * b.z);
         let t4 = k * k + 4.0 * radius2 * (a.z * a.z - minor_radius2);
-        println!("{:?}", (t1, t2, t3, t4));
+
         let s = solve_quartic_smallest_positive_real(1.0, t1, t2, t3, t4);
-        println!("{:?}", s);
+
         return s;
     }
 

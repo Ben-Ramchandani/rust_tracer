@@ -8,3 +8,7 @@ target-install/
 
 #vscode
 .vscode/
+
+#output files
+*.pnm
+*.png

@@ -2,8 +2,8 @@ use vec3::Vector3;
 use super::Ray;
 use shape::Shape;
 
-const RES_W: i64 = 40;
-const RES_H: i64 = 20;
+const RES_W: i64 = 500;
+const RES_H: i64 = 500;
 const SCREEN_Z: f64 = -2.0;
 const SCREEN_W: f64 = 2.0;
 const SCREEN_H: f64 = 2.0;
@@ -86,27 +86,10 @@ fn get_screen() -> Screen {
     };
 }
 
-// This is a terrible name
-fn get_view_ray_fn() -> Box<Fn(i64, i64) -> Ray> {
-    let width = Vector3::new(SCREEN_W, 0.0, 0.0);
-    let height = Vector3::new(0.0, -SCREEN_H, 0.0);
-    let resolution_w = RES_W as f64;
-    let resolution_h = RES_H as f64;
-    let eye = Vector3::new(0.0, 0.0, VIEW_Z);
-    {
-        let top_left = Vector3::new(-SCREEN_W / 2.0, SCREEN_H / 2.0, SCREEN_Z);
-        let increment_w = width / resolution_w;
-        let increment_h = height / resolution_h;
-        return Box::new(move |i: i64, j: i64| {
-            let screen_point = top_left + increment_w * (j as f64) + increment_h * (i as f64);
-            return ((screen_point - eye).normalize(), eye);
-        });
-    }
-}
-
 use super::color::Color;
 use super::pnm;
 use super::shape::{ORIGIN, Sphere, Plane, Torus};
+use std::io::stdout;
 
 pub fn simple_trace() {
     let screen = get_screen();
@@ -130,6 +113,7 @@ pub fn simple_trace() {
             return Color::from_rgb(0, 0, 0);
         }
     });
+    // pnm::write_console(pixels, RES_W);
 
-    pnm::write_console(pixels, RES_W);
+    pnm::write_pnm(pixels, RES_W, RES_H, &mut stdout());
 }
