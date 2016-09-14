@@ -8,6 +8,9 @@ pub use shape::plane::Plane;
 pub mod sphere;
 pub use shape::sphere::Sphere;
 
+pub mod torus;
+pub use shape::torus::Torus;
+
 pub trait Shape {
     // Intersection point of ray with shape.
     // the return value, (R, N), is such that

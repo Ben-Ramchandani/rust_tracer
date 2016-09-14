@@ -121,10 +121,10 @@ pub fn solve_quartic(aa: f64, bb: f64, cc: f64, dd: f64, ee: f64) -> (Cmplx, Cmp
 
     assert!(!near_zero(aa));
     let a = 1.0;
-    let b = bb/aa;
-    let c = cc/aa;
-    let d = dd/aa;
-    let e = ee/aa;
+    let b = bb / aa;
+    let c = cc / aa;
+    let d = dd / aa;
+    let e = ee / aa;
     let f = c - 3.0 * b * b / 8.0;
     let g = d + b * b * b / 8.0 - b * c / 2.0;
     let h = e - (3.0 * b * b * b * b / 256.0) + (b * b * c / 16.0) - (b * d / 4.0);
@@ -169,31 +169,32 @@ pub fn solve_quartic(aa: f64, bb: f64, cc: f64, dd: f64, ee: f64) -> (Cmplx, Cmp
         r = real_or_img_div(-g, (8.0 * pqr, 8.0 * pqi));
     }
     let s = b / (4.0 * a);
-    return (
-        (cmplx_add(cmplx_add(cmplx_add(p, q), r), (-s, 0.0))),
-        (cmplx_add(cmplx_add(cmplx_add(p, cmplx_neg(q)), cmplx_neg(r)), (-s, 0.0))),
-        (cmplx_add(cmplx_add(cmplx_add(cmplx_neg(p), q), cmplx_neg(r)), (-s, 0.0))),
-        (cmplx_add(cmplx_add(cmplx_add(cmplx_neg(p), cmplx_neg(q)), r), (-s, 0.0))),
-    )
+    return ((cmplx_add(cmplx_add(cmplx_add(p, q), r), (-s, 0.0))),
+            (cmplx_add(cmplx_add(cmplx_add(p, cmplx_neg(q)), cmplx_neg(r)),
+                       (-s, 0.0))),
+            (cmplx_add(cmplx_add(cmplx_add(cmplx_neg(p), q), cmplx_neg(r)),
+                       (-s, 0.0))),
+            (cmplx_add(cmplx_add(cmplx_add(cmplx_neg(p), cmplx_neg(q)), r),
+                       (-s, 0.0))));
 }
 
 fn flt_cmp(x: f64, y: f64) -> bool {
     return near_zero(x - y);
 }
 
-fn solve_quartic_smallest_positive_real(a: f64, b: f64, c: f64, d: f64, e: f64) -> Option<f64> {
+pub fn solve_quartic_smallest_positive_real(a: f64, b: f64, c: f64, d: f64, e: f64) -> Option<f64> {
     let mut smallest_real = -1.0;
     let ((r1, i1), (r2, i2), (r3, i3), (r4, i4)) = solve_quartic(a, b, c, d, e);
     if r1 < smallest_real && r1 > EPSILON && i1.abs() < EPSILON {
         smallest_real = r1;
     }
-        if r2 < smallest_real && r2 > EPSILON && i2.abs() < EPSILON {
+    if r2 < smallest_real && r2 > EPSILON && i2.abs() < EPSILON {
         smallest_real = r2;
     }
-        if r3 < smallest_real && r3 > EPSILON && i3.abs() < EPSILON {
+    if r3 < smallest_real && r3 > EPSILON && i3.abs() < EPSILON {
         smallest_real = r3;
     }
-        if r4 < smallest_real && r4 > EPSILON && i4.abs() < EPSILON {
+    if r4 < smallest_real && r4 > EPSILON && i4.abs() < EPSILON {
         smallest_real = r4;
     }
     if smallest_real > EPSILON {
@@ -207,7 +208,9 @@ fn cmplx_cmp((x, y): (f64, f64), (x1, y1): (f64, f64)) -> bool {
     return flt_cmp(x, x1) && flt_cmp(y, y1);
 }
 
-fn cmplx_cmp_4((x, y, z, u): (Cmplx, Cmplx, Cmplx, Cmplx), (x1, y1, z1, u1): (Cmplx, Cmplx, Cmplx, Cmplx)) -> bool {
+fn cmplx_cmp_4((x, y, z, u): (Cmplx, Cmplx, Cmplx, Cmplx),
+               (x1, y1, z1, u1): (Cmplx, Cmplx, Cmplx, Cmplx))
+               -> bool {
     return cmplx_cmp(x, x1) && cmplx_cmp(y, y1) && cmplx_cmp(z, z1) && cmplx_cmp(u, u1);
 }
 
@@ -238,17 +241,46 @@ fn check_quartic(a: f64, b: f64, c: f64, d: f64, e: f64) -> () {
 
 #[test]
 fn test_quartic() {
-    assert!(cmplx_cmp_4(solve_quartic(3.0, 6.0, -123.0, -126.0, 1080.0), ((5.0, 0.0), (3.0, 0.0), (-4.0, 0.0), (-6.0, 0.0))));
-    assert!(cmplx_cmp_4(solve_quartic(1.0, -5.0/20.0, -17.0/20.0, 29.0/20.0, -87.0/20.0), ((1.48758311033, 0.0), (0.222210408124, 1.29967219908), (0.222210408124, -1.29967219908), (-1.68200392658, 0.0))));
+    assert!(cmplx_cmp_4(solve_quartic(3.0, 6.0, -123.0, -126.0, 1080.0),
+                        ((5.0, 0.0), (3.0, 0.0), (-4.0, 0.0), (-6.0, 0.0))));
+    assert!(cmplx_cmp_4(solve_quartic(1.0, -5.0 / 20.0, -17.0 / 20.0, 29.0 / 20.0, -87.0 / 20.0),
+                        ((1.48758311033, 0.0),
+                         (0.222210408124, 1.29967219908),
+                         (0.222210408124, -1.29967219908),
+                         (-1.68200392658, 0.0))));
     check_quartic(1.0, 0.0, 0.0, 0.0, 0.0);
     check_quartic(1.0, 0.0, 0.0, 0.0, -1.0);
     check_quartic(1.0, 0.0, 0.0, 0.0, 1.0);
-    check_quartic(3671.068438605304, -1746.3860099225747, -2300.726389983724, 3933.893547694215, -310.96134916444583);
-    check_quartic(4837.747294590245, 3850.56239982792, 1071.5065628786324, 4246.753768541942, -4916.426421195232);
-    check_quartic(4045.668098223205, 3521.431975103304, 1345.5650293366095, -658.7986571357129, -2023.230493246667);
-    check_quartic(-4532.303951662107, 3348.9546185524464, -1337.624783475272, -545.8240198774666, -2151.2666752465716);
-    check_quartic(-3036.420315870136, -9139.208975460038, -4672.021580422994, -715.6670967716772, -9720.333591987857);
-    check_quartic(0.0010147759073859076, 8.15079496605753e-06, -0.0019196993484370938, -0.004747046679606099, -0.0019003462488357658);
+    check_quartic(3671.068438605304,
+                  -1746.3860099225747,
+                  -2300.726389983724,
+                  3933.893547694215,
+                  -310.96134916444583);
+    check_quartic(4837.747294590245,
+                  3850.56239982792,
+                  1071.5065628786324,
+                  4246.753768541942,
+                  -4916.426421195232);
+    check_quartic(4045.668098223205,
+                  3521.431975103304,
+                  1345.5650293366095,
+                  -658.7986571357129,
+                  -2023.230493246667);
+    check_quartic(-4532.303951662107,
+                  3348.9546185524464,
+                  -1337.624783475272,
+                  -545.8240198774666,
+                  -2151.2666752465716);
+    check_quartic(-3036.420315870136,
+                  -9139.208975460038,
+                  -4672.021580422994,
+                  -715.6670967716772,
+                  -9720.333591987857);
+    check_quartic(0.0010147759073859076,
+                  8.15079496605753e-06,
+                  -0.0019196993484370938,
+                  -0.004747046679606099,
+                  -0.0019003462488357658);
 }
 
 #[test]
