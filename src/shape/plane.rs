@@ -10,7 +10,7 @@ pub struct Plane {
 }
 
 impl Shape for Plane {
-    fn intersect(&self, (ray_dir, ray_origin): Ray) -> Option<(f64, Vector3)> {
+    fn intersect_with_normal(&self, (ray_dir, ray_origin): Ray) -> Option<(f64, Vector3)> {
         // Here normal is in the same hemisphere as the ray direction.
         let intersect_cosine: f64 = ray_dir.dot(self.normal);
 

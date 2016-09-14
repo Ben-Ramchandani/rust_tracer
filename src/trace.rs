@@ -2,8 +2,8 @@ use vec3::Vector3;
 use super::Ray;
 use shape::Shape;
 
-const RES_W: i32 = 40;
-const RES_H: i32 = 20;
+const RES_W: i64 = 40;
+const RES_H: i64 = 20;
 const SCREEN_Z: f64 = -2.0;
 const SCREEN_W: f64 = 2.0;
 const SCREEN_H: f64 = 2.0;
@@ -17,7 +17,7 @@ pub fn trace_nearest<'a>(ray: Ray, shapes: &'a Vec<&Shape>) -> Option<(&'a Shape
     let mut iter = shapes.iter();
 
     while let Some(shape) = iter.next() {
-        if let Some((distance, _)) = shape.intersect(ray) {
+        if let Some((distance, _)) = shape.intersect_with_normal(ray) {
             if distance < closest_distance {
                 closest_distance = distance;
                 closest_shape = Some(*shape);
@@ -32,8 +32,62 @@ pub fn trace_nearest<'a>(ray: Ray, shapes: &'a Vec<&Shape>) -> Option<(&'a Shape
     });
 }
 
+struct Screen {
+    res_w: i64,
+    res_h: i64,
+    eye: Vector3,
+    top_left: Vector3,
+    increment_w: Vector3,
+    increment_h: Vector3,
+    curr_w: i64,
+    curr_h: i64,
+    exausted: bool,
+}
+
+// TODO unused
+impl Screen {
+    fn pixel_count(&self) -> i64 {
+        return self.res_w * self.res_h;
+    }
+}
+
+impl Iterator for Screen {
+    type Item = Ray;
+    fn next(&mut self) -> Option<Ray> {
+        if self.exausted {
+            return None;
+        }
+        let screen_point = self.top_left + self.increment_w * (self.curr_w as f64) +
+                           self.increment_h * (self.curr_h as f64);
+        let res = Some(((screen_point - self.eye).normalize(), self.eye));
+        self.curr_w += 1;
+        if self.curr_w == self.res_w {
+            self.curr_h += 1;
+            self.curr_w = 0;
+            if self.curr_h == self.res_h {
+                self.exausted = true;
+            }
+        }
+        return res;
+    }
+}
+
+fn get_screen() -> Screen {
+    return Screen {
+        res_w: RES_W,
+        res_h: RES_H,
+        eye: Vector3::new(0.0, 0.0, VIEW_Z),
+        top_left: Vector3::new(-SCREEN_W / 2.0, SCREEN_H / 2.0, SCREEN_Z),
+        increment_w: Vector3::new(SCREEN_W / RES_W as f64, 0.0, 0.0),
+        increment_h: Vector3::new(0.0, -SCREEN_H / RES_H as f64, 0.0),
+        curr_w: 0,
+        curr_h: 0,
+        exausted: false,
+    };
+}
+
 // This is a terrible name
-fn get_view_ray_fn() -> Box<Fn(i32, i32) -> Ray> {
+fn get_view_ray_fn() -> Box<Fn(i64, i64) -> Ray> {
     let width = Vector3::new(SCREEN_W, 0.0, 0.0);
     let height = Vector3::new(0.0, -SCREEN_H, 0.0);
     let resolution_w = RES_W as f64;
@@ -43,7 +97,7 @@ fn get_view_ray_fn() -> Box<Fn(i32, i32) -> Ray> {
         let top_left = Vector3::new(-SCREEN_W / 2.0, SCREEN_H / 2.0, SCREEN_Z);
         let increment_w = width / resolution_w;
         let increment_h = height / resolution_h;
-        return Box::new(move |i: i32, j: i32| {
+        return Box::new(move |i: i64, j: i64| {
             let screen_point = top_left + increment_w * (j as f64) + increment_h * (i as f64);
             return ((screen_point - eye).normalize(), eye);
         });
@@ -52,9 +106,16 @@ fn get_view_ray_fn() -> Box<Fn(i32, i32) -> Ray> {
 
 use super::color::Color;
 use super::pnm;
-use super::shape::{ORIGIN, Sphere, Plane};
+use super::shape::{ORIGIN, Sphere, Plane, Torus};
 
 pub fn simple_trace() {
+    let screen = get_screen();
+    // for r in screen {
+    //     println!("{:?}", r);
+    // }
+    // println!("{:?}", (RES_W, RES_H));
+    // println!("{:?}", screen.count());
+    // return;
     let s = Sphere {
         centre: ORIGIN,
         radius: 1.3,
@@ -63,9 +124,13 @@ pub fn simple_trace() {
         normal: Vector3::new(0.0, 1.0, 0.0),
         origin_distance: -5.0,
     };
-    let world: Vec<&Shape> = vec![&p, &s];
+    let t = Torus {
+        radius: 1.0,
+        tube_radius: 0.3,
+    };
+    let world: Vec<&Shape> = vec![&t];
     let mut pixels: Vec<Vec<Color>> = vec![];
-    let gen_screen: Box<Fn(i32, i32) -> Ray> = get_view_ray_fn();
+    let gen_screen: Box<Fn(i64, i64) -> Ray> = get_view_ray_fn();
     for i in 0..(RES_H + 1) {
         let mut row: Vec<Color> = vec![];
         for j in 0..(RES_W + 1) {
@@ -78,5 +143,5 @@ pub fn simple_trace() {
         }
         pixels.push(row);
     }
-    pnm::write_pnm(&pixels);
+    pnm::write_console(&pixels);
 }

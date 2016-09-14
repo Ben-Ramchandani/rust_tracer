@@ -59,7 +59,16 @@ pub fn solve_cubic(a: f64, b: f64, c: f64, d: f64) -> CubicRoots {
     } else {
         let i = (g * g / 4.0 - h).sqrt();
         let j = i.cbrt();
-        let k = (-g / (2.0 * i)).acos() / 3.0;
+        let gh: f64;
+        let gi = -g / (2.0 * i);
+        if gi < -1.0 {
+            gh = -1.0;
+        } else if gi > 1.0 {
+            panic!("In cubic solver, numeric stability problem. Replace this panic with gi = 1.0");
+        } else {
+            gh = gi;
+        }
+        let k = gh.acos() / 3.0;
         let l = -j;
         let m = k.cos();
         let n = three.sqrt() * k.sin();
@@ -183,7 +192,7 @@ fn flt_cmp(x: f64, y: f64) -> bool {
 }
 
 pub fn solve_quartic_smallest_positive_real(a: f64, b: f64, c: f64, d: f64, e: f64) -> Option<f64> {
-    let mut smallest_real = -1.0;
+    let mut smallest_real = 1.0 / 0.0;
     let ((r1, i1), (r2, i2), (r3, i3), (r4, i4)) = solve_quartic(a, b, c, d, e);
     if r1 < smallest_real && r1 > EPSILON && i1.abs() < EPSILON {
         smallest_real = r1;
@@ -197,10 +206,10 @@ pub fn solve_quartic_smallest_positive_real(a: f64, b: f64, c: f64, d: f64, e: f
     if r4 < smallest_real && r4 > EPSILON && i4.abs() < EPSILON {
         smallest_real = r4;
     }
-    if smallest_real > EPSILON {
-        return Some(smallest_real);
-    } else {
+    if smallest_real.is_infinite() {
         return None;
+    } else {
+        return Some(smallest_real);
     }
 }
 
@@ -281,6 +290,11 @@ fn test_quartic() {
                   -0.0019196993484370938,
                   -0.004747046679606099,
                   -0.0019003462488357658);
+    check_quartic(1.0,
+                  -20.0,
+                  150.01999999999998,
+                  -500.19999999999993,
+                  625.5001);
 }
 
 #[test]

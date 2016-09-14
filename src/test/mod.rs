@@ -26,7 +26,7 @@ fn test_plane() {
         normal: v1,
         origin_distance: 1.0,
     };
-    let (t, n) = plane.intersect((v1, ORIGIN)).unwrap();
+    let (t, n) = plane.intersect_with_normal((v1, ORIGIN)).unwrap();
     assert_eq!(t, 1.0);
     assert_eq!(n, v2);
 }

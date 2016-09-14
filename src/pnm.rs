@@ -1,6 +1,6 @@
 use super::color::Color;
 
-pub fn write_pnm(arr: &Vec<Vec<Color>>) {
+pub fn write_console(arr: &Vec<Vec<Color>>) {
     for row in arr.iter() {
         print!("|");
         for col in row.iter() {

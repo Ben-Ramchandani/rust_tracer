@@ -15,10 +15,10 @@ pub trait Shape {
     // Intersection point of ray with shape.
     // the return value, (R, N), is such that
     // Ray origin + R * Ray direction = intersect point.
-    fn intersect(&self, ray: Ray) -> Option<(f64, Vector3)>;
+    fn intersect_with_normal(&self, ray: Ray) -> Option<(f64, Vector3)>;
 
     fn intersect_without_normal(&self, ray: Ray) -> Option<f64> {
-        self.intersect(ray).map(|(s, _)| s)
+        self.intersect_with_normal(ray).map(|(s, _)| s)
     }
 }
 

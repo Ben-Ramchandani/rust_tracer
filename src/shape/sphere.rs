@@ -43,7 +43,7 @@ impl Shape for Sphere {
         }
     }
 
-    fn intersect(&self, (dir, origin): Ray) -> Option<(f64, Vector3)> {
+    fn intersect_with_normal(&self, (dir, origin): Ray) -> Option<(f64, Vector3)> {
         self.intersect_without_normal((dir, origin))
             .map(|t: f64| (t, (origin + dir * t) - self.centre))
     }
