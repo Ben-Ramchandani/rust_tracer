@@ -110,12 +110,6 @@ use super::shape::{ORIGIN, Sphere, Plane, Torus};
 
 pub fn simple_trace() {
     let screen = get_screen();
-    // for r in screen {
-    //     println!("{:?}", r);
-    // }
-    // println!("{:?}", (RES_W, RES_H));
-    // println!("{:?}", screen.count());
-    // return;
     let s = Sphere {
         centre: ORIGIN,
         radius: 1.3,
@@ -129,19 +123,13 @@ pub fn simple_trace() {
         tube_radius: 0.3,
     };
     let world: Vec<&Shape> = vec![&t];
-    let mut pixels: Vec<Vec<Color>> = vec![];
-    let gen_screen: Box<Fn(i64, i64) -> Ray> = get_view_ray_fn();
-    for i in 0..(RES_H + 1) {
-        let mut row: Vec<Color> = vec![];
-        for j in 0..(RES_W + 1) {
-            let ray = gen_screen(i, j);
-            if let Some(_) = trace_nearest(ray, &world) {
-                row.push(Color::from_rgb(255, 0, 0));
-            } else {
-                row.push(Color::from_rgb(0, 0, 0));
-            }
+    let pixels = screen.map(|ray| {
+        if let Some(_) = trace_nearest(ray, &world) {
+            return Color::from_rgb(255, 0, 0);
+        } else {
+            return Color::from_rgb(0, 0, 0);
         }
-        pixels.push(row);
-    }
-    pnm::write_console(&pixels);
+    });
+
+    pnm::write_console(pixels, RES_W);
 }
