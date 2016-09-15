@@ -48,7 +48,6 @@ pub fn solve_cubic(a: f64, b: f64, c: f64, d: f64) -> CubicRoots {
 
     let three: f64 = 3.0;
     if h >= INTERNAL_EPSILON {
-        println!("{:?}", (h, g, f));
 
         let r = -g / 2.0 + h.sqrt();
         let s = r.cbrt();
@@ -56,8 +55,6 @@ pub fn solve_cubic(a: f64, b: f64, c: f64, d: f64) -> CubicRoots {
         let u = t.cbrt();
         let real = -(s + u) / 2.0 - b / (3.0 * a);
         let img = (s - u) * three.sqrt() / 2.0;
-        println!("{:?}", img);
-
         return CubicRoots::OneRealTwoComplex(s + u - b / (3.0 * a), (real, img), (real, -img));
     } else {
         if h > 0.0 {

@@ -50,6 +50,6 @@ fn test_sphere() {
         radius: 1.0,
     };
     let r: Ray = (v2, v1);
-    let d = s.intersect_without_normal(r).unwrap();
+    let d = s.intersect(r).unwrap();
     assert_eq!(d, 2.0);
 }

@@ -5,6 +5,7 @@ mod shape;
 mod trace;
 mod test;
 mod pnm;
+mod screen;
 use vec3::Vector3;
 
 mod cubic;

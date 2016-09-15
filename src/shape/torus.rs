@@ -12,7 +12,7 @@ pub struct Torus {
 // tube_radius < raduis.
 
 impl Shape for Torus {
-    fn intersect_without_normal(&self, (b, a): Ray) -> Option<(f64)> {
+    fn intersect(&self, (b, a): Ray) -> Option<(f64)> {
 
 
         let a_dot_a = a.dot(a);
@@ -32,15 +32,15 @@ impl Shape for Torus {
         return s;
     }
 
-    fn intersect_with_normal(&self, (dir, origin): Ray) -> Option<(f64, Vector3)> {
-        return self.intersect_without_normal((dir, origin))
-            .map(|s| (s, self.normal(origin + (dir * s))));
+    fn normal(&self, point: Vector3) -> Vector3 {
+        let point_on_ring = Vector3::new(point.x, point.y, 0.0).normalize() * self.radius;
+        return point - point_on_ring;
     }
 }
 
 impl Torus {
     fn normal(&self, point: Vector3) -> Vector3 {
         let point_on_ring = Vector3::new(point.x, point.y, 0.0).normalize() * self.radius;
-        return (point - point_on_ring).normalize();
+        return point - point_on_ring;
     }
 }

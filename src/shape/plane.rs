@@ -10,13 +10,12 @@ pub struct Plane {
 }
 
 impl Shape for Plane {
-    fn intersect_with_normal(&self, (ray_dir, ray_origin): Ray) -> Option<(f64, Vector3)> {
-        // Here normal is in the same hemisphere as the ray direction.
+    fn intersect(&self, (ray_dir, ray_origin): Ray) -> Option<f64> {
         let intersect_cosine: f64 = ray_dir.dot(self.normal);
 
         if intersect_cosine < ANGLE_EPSILON && intersect_cosine > -ANGLE_EPSILON {
             // Ray is parallel to plane
-            return None::<(f64, Vector3)>;
+            return None;
         }
 
         let s: f64 = self.origin_distance - ray_origin.dot(self.normal);
@@ -24,13 +23,13 @@ impl Shape for Plane {
 
         if t < INTERSECT_EPSILON {
             // Ray starts after plane.
-            return None::<(f64, Vector3)>;
+            return None;
         } else {
-            if intersect_cosine > 0.0 {
-                return Some((t, -self.normal));
-            } else {
-                return Some((t, self.normal));
-            }
+            return Some(t);
         }
+    }
+
+    fn normal(&self, _: Vector3) -> Vector3 {
+        return self.normal;
     }
 }
