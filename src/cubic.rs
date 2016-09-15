@@ -57,6 +57,7 @@ pub fn solve_cubic(a: f64, b: f64, c: f64, d: f64) -> CubicRoots {
 
         return CubicRoots::ThreeReal(r, r, r);
     } else {
+        // TODO check h < 0
         let i = (g * g / 4.0 - h).sqrt();
         let j = i.cbrt();
         let gh: f64;
