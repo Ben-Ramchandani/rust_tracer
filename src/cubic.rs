@@ -25,12 +25,12 @@ pub fn solve_quadratic(a: f64, b: f64, c: f64) -> QuadRoots {
     }
 }
 
-pub const EPSILON: f64 = 1e-10;
+pub const EPSILON: f64 = 1.0e-10;
+const INTERNAL_EPSILON: f64 = EPSILON / 1.0e3;
 
 pub fn near_zero(x: f64) -> bool {
     return x < EPSILON && x > -EPSILON;
 }
-
 
 pub fn solve_cubic(a: f64, b: f64, c: f64, d: f64) -> CubicRoots {
     // From:
@@ -39,10 +39,16 @@ pub fn solve_cubic(a: f64, b: f64, c: f64, d: f64) -> CubicRoots {
 
     let f = c / a - (b * b) / (3.0 * a * a);
     let g = ((2.0 * b * b * b / a) - (9.0 * b * c) + (27.0 * d * a)) / (27.0 * a * a);
-    let h = (g * g) / 4.0 + (f * f * f) / 27.0;
+    if near_zero(f) && near_zero(g) {
+        let r = -(d / a).cbrt();
+        return CubicRoots::ThreeReal(r, r, r);
+    }
+
+    let mut h = (g * g) / 4.0 + (f * f * f) / 27.0;
 
     let three: f64 = 3.0;
-    if h > EPSILON {
+    if h >= INTERNAL_EPSILON {
+        println!("{:?}", (h, g, f));
 
         let r = -g / 2.0 + h.sqrt();
         let s = r.cbrt();
@@ -50,32 +56,26 @@ pub fn solve_cubic(a: f64, b: f64, c: f64, d: f64) -> CubicRoots {
         let u = t.cbrt();
         let real = -(s + u) / 2.0 - b / (3.0 * a);
         let img = (s - u) * three.sqrt() / 2.0;
+        println!("{:?}", img);
 
         return CubicRoots::OneRealTwoComplex(s + u - b / (3.0 * a), (real, img), (real, -img));
-    } else if near_zero(h) && near_zero(f) && near_zero(g) {
-        let r = -(d / a).cbrt();
-
-        return CubicRoots::ThreeReal(r, r, r);
     } else {
-        // TODO check h < 0
+        if h > 0.0 {
+            h = 0.0;
+        }
+
         let i = (g * g / 4.0 - h).sqrt();
         let j = i.cbrt();
-        let gh: f64;
-        let gi = -g / (2.0 * i);
-        if gi < -1.0 {
-            gh = -1.0;
-        } else if gi > 1.0 {
-            panic!("In cubic solver, numeric stability problem. Replace this panic with gi = 1.0");
-        } else {
-            gh = gi;
+        let k = (-g / (2.0 * i)).acos() / 3.0;
+        if k.is_nan() {
+            panic!("Got NaN from arcos.");
         }
-        let k = gh.acos() / 3.0;
         let l = -j;
         let m = k.cos();
         let n = three.sqrt() * k.sin();
         let p = -(b / (3.0 * a));
 
-        return CubicRoots::ThreeReal(2.0 * j * k.cos() + p, l * (m + n) + p, l * (m - n) + p);
+        return CubicRoots::ThreeReal(l * (m + n) + p, 2.0 * j * k.cos() + p, l * (m - n) + p);
     }
 }
 
@@ -238,6 +238,7 @@ fn check_solution(solution: Cmplx, (a, b, c, d, e): (f64, f64, f64, f64, f64)) -
     t = cmplx_add(t, cmplx_mult((c, 0.0), cmplx_pow(solution, 2)));
     t = cmplx_add(t, cmplx_mult((d, 0.0), cmplx_pow(solution, 1)));
     let (r, i) = cmplx_add(t, (e, 0.0));
+    println!("Input: {:?}; Output: {:?}", (a, b, c, d, e), (r, i));
     assert!(r.abs() < EPSILON && i.abs() < EPSILON);
 }
 

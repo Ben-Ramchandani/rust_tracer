@@ -10,14 +10,6 @@ pub struct Torus {
 
 // Torus in the x-y plane centerd on the origin.
 // tube_radius < raduis.
-//
-// 2*R*sqrt(a^2 + 2*t*a*d + t^2*d^2 + b^2 + 2*t*b*e + t^2*e^2) =
-// R^2 + a^2 + 2*t*a*d + b^2 +
-// 2*R*sqrt(x_E^2 + 2*t*x_E*x_D + t^2*x_D^2 + y_E^2 + 2*t*y_E*y_D + t^2*y_D^2)
-// = R^2 + x_E^2+2*t*x_E*x_D + t^2*x_D^2 + y_E^2 + 2*t*y_E*y_D + t^2*y_D^2
-//  + z_E^2 + 2*t*z_E*z_D + t^2*z_D^2 - r^2
-
-// R^2 + a^2+2*t*a*b + t^2*b^2 + d^2 + 2*t*d*c + t^2*c^2 + f^2 + 2*t*f*g + t^2*g^2 - r^2
 
 impl Shape for Torus {
     fn intersect_without_normal(&self, (b, a): Ray) -> Option<(f64)> {
