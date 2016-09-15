@@ -2,6 +2,8 @@ use vec3::Vector3;
 use color::Color;
 use Ray;
 
+pub mod light;
+pub use shape::light::Light;
 pub mod plane;
 pub use shape::plane::Plane;
 

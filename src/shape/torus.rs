@@ -6,17 +6,17 @@ use cubic::solve_quartic_smallest_positive_real;
 pub struct Torus {
     pub radius: f64,
     pub tube_radius: f64,
+    pub center: Vector3,
+    pub rotx: f64,
+    pub roty: f64,
 }
 
 // Torus in the x-y plane centerd on the origin.
 // tube_radius < raduis.
 
-impl Shape for Torus {
-    fn intersect(&self, (b, a): Ray) -> Option<(f64)> {
-
-
+impl Torus {
+    fn intersect_origin(&self, (b, a): Ray) -> Option<(f64)> {
         let a_dot_a = a.dot(a);
-
         let a_dot_b = a.dot(b);
 
         let radius2 = self.radius * self.radius;
@@ -30,6 +30,12 @@ impl Shape for Torus {
         let s = solve_quartic_smallest_positive_real(1.0, t1, t2, t3, t4);
 
         return s;
+    }
+}
+
+impl Shape for Torus {
+    fn intersect(&self, (b, a): Ray) -> Option<(f64)> {
+       return self.intersect_origin((b.rotate_inv(self.rotx, self.roty), (a - self.center).rotate_inv(self.rotx, self.roty)));
     }
 
     fn normal(&self, point: Vector3) -> Vector3 {

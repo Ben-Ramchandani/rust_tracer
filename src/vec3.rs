@@ -39,6 +39,18 @@ impl Vector3 {
             z: self.z / len,
         };
     }
+
+    pub fn rotate_inv(self, a: f64, b: f64) -> Vector3 {
+        let cosa = a.cos();
+        let cosb = b.cos();
+        let sina = a.sin();
+        let sinb = b.sin();
+        return Vector3 {
+            x: self.x * cosb + self.y * sina*sinb + self.z * cosa*sinb,
+            y: 0.0 + self.y * cosa + self.z * (-sina),
+            z: self.x * (-sinb) + self.y * cosb*sina + self.z * cosa*cosb, 
+        };
+    }
 }
 
 impl ::std::ops::Add for Vector3 {
