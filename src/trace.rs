@@ -33,11 +33,13 @@ impl<'a> World<'a> {
         return closest;
     }
 
-    fn trace_collision(&self, ray: Ray) -> bool {
+    fn trace_collision(&self, ray: Ray, max_distance: f64) -> bool {
 
         for shape in self.shapes.iter() {
-            if let Some(_) = shape.intersect(ray) {
+            if let Some(s) = shape.intersect(ray) {
+                if s < max_distance {
                 return false;
+                }
             }
         }
         return true;
@@ -52,7 +54,7 @@ impl<'a> World<'a> {
             if ray_to_light.dot(normal) < 0.0 {
                 return false;
             } else {
-                return self.trace_collision((ray_to_light.normalize(), point));
+                return self.trace_collision((ray_to_light.normalize(), point), ray_to_light.len());
             }
         }));
     }
