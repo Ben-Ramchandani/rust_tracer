@@ -3,6 +3,11 @@ use super::Ray;
 use shape::Shape;
 use shape::Light;
 use screen;
+use super::color;
+use super::color::Color;
+use super::pnm;
+use super::shape::{ORIGIN, Sphere, Torus};
+use std::io::stdout;
 
 struct World<'a> {
     shapes: Vec<&'a Shape>,
@@ -10,24 +15,22 @@ struct World<'a> {
 }
 
 impl<'a> World<'a> {
-    pub fn trace_nearest(&self, ray: Ray) -> Option<(&Shape, f64)> {
+    pub fn trace_nearest(&self, ray: Ray) -> Option<(&Shape, f64, Vector3)> {
 
-        let mut closest_shape: Option<&Shape> = None;
+        let mut closest: Option<(&Shape, f64, Vector3)> = None;
         let mut closest_distance: f64 = 1.0 / 0.0;
         let mut iter = self.shapes.iter();
 
         while let Some(shape) = iter.next() {
-            if let Some((distance, _)) = shape.intersect_with_normal(ray) {
+            if let Some((distance, normal)) = shape.intersect_with_normal(ray) {
                 if distance < closest_distance {
                     closest_distance = distance;
-                    closest_shape = Some(*shape);
+                    closest = Some((*shape, distance, normal));
                 }
             }
         }
 
-        return closest_shape.map(|s| {
-            return (s, closest_distance);
-        });
+        return closest;
     }
 
     fn trace_collision(&self, ray: Ray) -> bool {
@@ -49,16 +52,45 @@ impl<'a> World<'a> {
             if ray_to_light.dot(normal) < 0.0 {
                 return false;
             } else {
-                return !self.trace_collision((ray_to_light.normalize(), point));
+                return self.trace_collision((ray_to_light.normalize(), point));
             }
         }));
     }
+
+    fn trace(&self, (dir, origin): Ray) -> Color {
+        if let Some((shape, t, normal)) = self.trace_nearest((dir, origin)) {
+            let point = origin + dir * t;
+            let lights = self.trace_lights(point, normal);
+            let mut color = color::BLACK;
+            for light in lights {
+                color = color + diffuse(shape, light, normal, point);
+            }
+            color = color + ambient(shape);
+            return color;
+        } else {
+            return color::BLACK;
+        }
+    }
 }
 
-use super::color::Color;
-use super::pnm;
-use super::shape::{ORIGIN, Sphere, Torus};
-use std::io::stdout;
+pub const K_DIFFUSE: f64 = 3.0;
+pub const K_AMBIENT: f64 = 0.1;
+
+
+fn diffuse(shape: &Shape, light: &Light, normal: Vector3, point: Vector3) -> Color {
+    let ray_to_light = light.position - point;
+    let distance = ray_to_light.len();
+    let cosine = normal.dot(ray_to_light.normalize());
+    if cosine.is_nan() {
+        panic!("Cosine is NaN");
+    }
+    let factor = K_DIFFUSE * normal.dot(ray_to_light.normalize()) * 1.0 / distance;
+    return (shape.color_diffuse() * light.color) * factor;
+}
+
+fn ambient(shape: &Shape) -> Color {
+    return shape.color_ambient() * K_AMBIENT;
+}
 
 pub fn simple_trace() {
     let screen = screen::get_screen();
@@ -67,29 +99,32 @@ pub fn simple_trace() {
         radius: 0.5,
     };
     let t = &Torus {
-        center: Vector3::new(0.0, 1.0, 0.0),
-        radius: 1.0,
-        tube_radius: 0.4,
+        center: Vector3::new(0.0, 0.0, 0.0),
+        radius: 0.8,
+        tube_radius: 0.25,
+        rotx: 0.0, // 3.14159 / 2.0,
+        roty: 0.0,
+    };
+    let t2 = &Torus {
+        center: Vector3::new(0.0, 0.0, 0.0),
+        radius: 0.8,
+        tube_radius: 0.25,
         rotx: 0.5,
-        roty: 0.5,
+        roty: 0.0,
     };
     let the_shapes: Vec<&Shape> = vec![t];
+    let l: &Light = &Light {
+        position: Vector3::new(0.0, 0.0, -5.0),
+        color: color::RED,
+    };
     let world = World {
         shapes: the_shapes,
-        lights: vec![],
+        lights: vec![l],
     };
     let pixels = screen.map(|ray| {
-        if let Some((_, t)) = world.trace_nearest(ray) {
-            let d: i32 = 255 - (t * 40.0) as i32;
-            if d < 0 || d > 255 {
-                panic!();
-            }
-            return Color::from_rgb(d as u8, 0, 0);
-        } else {
-            return Color::from_rgb(0, 0, 0);
-        }
+        return world.trace(ray);
     });
-    // pnm::write_console(pixels, RES_W);
+    // pnm::write_console(pixels, screen::RES_W);
 
     pnm::write_pnm(pixels, screen::RES_W, screen::RES_H, &mut stdout());
 }

@@ -33,11 +33,15 @@ impl Vector3 {
 
     pub fn normalize(self) -> Vector3 {
         let len: f64 = self.len();
-        return Vector3 {
-            x: self.x / len,
-            y: self.y / len,
-            z: self.z / len,
-        };
+        if len == 0.0 {
+            return Vector3::new(0.0, 0.0, 0.0);
+        } else {
+            return Vector3 {
+                x: self.x / len,
+                y: self.y / len,
+                z: self.z / len,
+            };
+        }
     }
 
     pub fn rotate_inv(self, a: f64, b: f64) -> Vector3 {
@@ -46,9 +50,9 @@ impl Vector3 {
         let sina = a.sin();
         let sinb = b.sin();
         return Vector3 {
-            x: self.x * cosb + self.y * sina*sinb + self.z * cosa*sinb,
+            x: self.x * cosb + self.y * sina * sinb + self.z * cosa * sinb,
             y: 0.0 + self.y * cosa + self.z * (-sina),
-            z: self.x * (-sinb) + self.y * cosb*sina + self.z * cosa*cosb, 
+            z: self.x * (-sinb) + self.y * cosb * sina + self.z * cosa * cosb,
         };
     }
 }

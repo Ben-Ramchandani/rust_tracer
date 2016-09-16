@@ -44,6 +44,6 @@ impl Shape for Sphere {
     }
 
     fn normal(&self, point: Vector3) -> Vector3 {
-        return point - self.centre;
+        return (point - self.centre).normalize();
     }
 }

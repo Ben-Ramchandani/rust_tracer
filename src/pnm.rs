@@ -5,7 +5,6 @@ use std::io::prelude::*;
 pub fn write_console<I>(pixels: I, width: i64)
     where I: Iterator<Item = Color>
 {
-
     let mut count: i64 = 0;
     let mut string = String::from("|");
     for color in pixels {
@@ -20,7 +19,7 @@ pub fn write_console<I>(pixels: I, width: i64)
             count = 0;
         }
     }
-
+    print!("{}", string);
 }
 
 pub fn write_pnm<I>(pixels: I, width: i64, height: i64, file: &mut Write)

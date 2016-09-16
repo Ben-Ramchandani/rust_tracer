@@ -1,4 +1,5 @@
 use vec3::Vector3;
+use color;
 use color::Color;
 use Ray;
 
@@ -24,6 +25,14 @@ pub trait Shape {
     fn intersect_with_normal(&self, ray: Ray) -> Option<(f64, Vector3)> {
         let (dir, origin): Ray = ray;
         return self.intersect(ray).map(|s| (s, self.normal(origin + (dir * s))));
+    }
+
+    fn color_diffuse(&self) -> Color {
+        return color::RED;
+    }
+
+    fn color_ambient(&self) -> Color {
+        return color::RED;
     }
 }
 

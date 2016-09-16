@@ -35,18 +35,20 @@ impl Torus {
 
 impl Shape for Torus {
     fn intersect(&self, (b, a): Ray) -> Option<(f64)> {
-       return self.intersect_origin((b.rotate_inv(self.rotx, self.roty), (a - self.center).rotate_inv(self.rotx, self.roty)));
+        return self.intersect_origin((b.rotate_inv(self.rotx, self.roty),
+                                      (a - self.center).rotate_inv(self.rotx, self.roty)));
     }
 
     fn normal(&self, point: Vector3) -> Vector3 {
         let point_on_ring = Vector3::new(point.x, point.y, 0.0).normalize() * self.radius;
-        return point - point_on_ring;
+        return (point - point_on_ring).normalize();
     }
-}
 
-impl Torus {
-    fn normal(&self, point: Vector3) -> Vector3 {
-        let point_on_ring = Vector3::new(point.x, point.y, 0.0).normalize() * self.radius;
-        return point - point_on_ring;
+    fn intersect_with_normal(&self, ray: Ray) -> Option<(f64, Vector3)> {
+        let (dir, origin): Ray = ray;
+        let moved_dir = dir.rotate_inv(self.rotx, self.roty);
+        let moved_origin = (origin - self.center).rotate_inv(self.rotx, self.roty);
+        return self.intersect_origin((moved_dir, moved_origin))
+            .map(|s| (s, self.normal(moved_origin + (moved_dir * s))));
     }
 }
