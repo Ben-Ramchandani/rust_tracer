@@ -1,10 +1,10 @@
 use vec3::Vector3;
 use super::Ray;
 
-pub const RES_W: i64 = 500;
-pub const RES_H: i64 = 500;
+pub const RES_W: i64 = 1920;
+pub const RES_H: i64 = 1080;
 pub const SCREEN_Z: f64 = -2.0;
-pub const SCREEN_W: f64 = 2.0;
+pub const SCREEN_W: f64 = 3.55555555555;
 pub const SCREEN_H: f64 = 2.0;
 pub const VIEW_Z: f64 = -5.0;
 

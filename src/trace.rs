@@ -38,7 +38,7 @@ impl<'a> World<'a> {
         for shape in self.shapes.iter() {
             if let Some(s) = shape.intersect(ray) {
                 if s < max_distance {
-                return false;
+                    return false;
                 }
             }
         }
@@ -75,7 +75,7 @@ impl<'a> World<'a> {
     }
 }
 
-pub const K_DIFFUSE: f64 = 3.0;
+pub const K_DIFFUSE: f64 = 5.0;
 pub const K_AMBIENT: f64 = 0.1;
 
 
@@ -86,7 +86,7 @@ fn diffuse(shape: &Shape, light: &Light, normal: Vector3, point: Vector3) -> Col
     if cosine.is_nan() {
         panic!("Cosine is NaN");
     }
-    let factor = K_DIFFUSE * normal.dot(ray_to_light.normalize()) * 1.0 / distance;
+    let factor = K_DIFFUSE * normal.dot(ray_to_light.normalize()) * 1.0 / (distance * distance);
     return (shape.color_diffuse() * light.color) * factor;
 }
 
@@ -96,27 +96,27 @@ fn ambient(shape: &Shape) -> Color {
 
 pub fn simple_trace() {
     let screen = screen::get_screen();
-    let s: &Sphere = &Sphere {
-        centre: ORIGIN,
-        radius: 0.5,
-    };
+    // let s: &Sphere = &Sphere {
+    //     centre: ORIGIN,
+    //     radius: 0.5,
+    // };
     let t = &Torus {
         center: Vector3::new(0.0, 0.0, 0.0),
         radius: 0.8,
         tube_radius: 0.25,
-        rotx: 0.0, // 3.14159 / 2.0,
+        rotx: 0.0,
         roty: 0.0,
     };
     let t2 = &Torus {
-        center: Vector3::new(0.0, 0.0, 0.0),
+        center: Vector3::new(0.8, 0.0, 0.0),
         radius: 0.8,
         tube_radius: 0.25,
-        rotx: 0.5,
+        rotx: 3.1415926 / 2.0,
         roty: 0.0,
     };
-    let the_shapes: Vec<&Shape> = vec![t];
+    let the_shapes: Vec<&Shape> = vec![t, t2];
     let l: &Light = &Light {
-        position: Vector3::new(0.0, 0.0, -5.0),
+        position: Vector3::new(-1.5, 1.0, -3.0),
         color: color::RED,
     };
     let world = World {

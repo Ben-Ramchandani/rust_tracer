@@ -189,19 +189,19 @@ fn flt_cmp(x: f64, y: f64) -> bool {
     return near_zero(x - y);
 }
 
-pub fn solve_quartic_smallest_positive_real(a: f64, b: f64, c: f64, d: f64, e: f64) -> Option<f64> {
+pub fn solve_quartic_smallest_positive_real(a: f64, b: f64, c: f64, d: f64, e: f64, epsilon: f64) -> Option<f64> {
     let mut smallest_real = 1.0 / 0.0;
     let ((r1, i1), (r2, i2), (r3, i3), (r4, i4)) = solve_quartic(a, b, c, d, e);
-    if r1 < smallest_real && r1 > EPSILON && i1.abs() < EPSILON {
+    if r1 < smallest_real && r1 > epsilon && i1.abs() < EPSILON {
         smallest_real = r1;
     }
-    if r2 < smallest_real && r2 > EPSILON && i2.abs() < EPSILON {
+    if r2 < smallest_real && r2 > epsilon && i2.abs() < EPSILON {
         smallest_real = r2;
     }
-    if r3 < smallest_real && r3 > EPSILON && i3.abs() < EPSILON {
+    if r3 < smallest_real && r3 > epsilon && i3.abs() < EPSILON {
         smallest_real = r3;
     }
-    if r4 < smallest_real && r4 > EPSILON && i4.abs() < EPSILON {
+    if r4 < smallest_real && r4 > epsilon && i4.abs() < EPSILON {
         smallest_real = r4;
     }
     if smallest_real.is_infinite() {

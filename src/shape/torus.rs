@@ -1,5 +1,5 @@
 use vec3::Vector3;
-use shape::Shape;
+use shape::{Shape, INTERSECT_EPSILON};
 use Ray;
 use cubic::solve_quartic_smallest_positive_real;
 
@@ -27,9 +27,14 @@ impl Torus {
         let t3 = 4.0 * (k * a_dot_b + 2.0 * radius2 * a.z * b.z);
         let t4 = k * k + 4.0 * radius2 * (a.z * a.z - minor_radius2);
 
-        let s = solve_quartic_smallest_positive_real(1.0, t1, t2, t3, t4);
+        let s = solve_quartic_smallest_positive_real(1.0, t1, t2, t3, t4, INTERSECT_EPSILON);
 
         return s;
+    }
+
+    fn normal_origin(&self, point: Vector3) -> Vector3 {
+        let point_on_ring = Vector3::new(point.x, point.y, 0.0).normalize() * self.radius;
+        return (point - point_on_ring).normalize();
     }
 }
 
@@ -39,16 +44,18 @@ impl Shape for Torus {
                                       (a - self.center).rotate_inv(self.rotx, self.roty)));
     }
 
-    fn normal(&self, point: Vector3) -> Vector3 {
-        let point_on_ring = Vector3::new(point.x, point.y, 0.0).normalize() * self.radius;
-        return (point - point_on_ring).normalize();
+    fn normal(&self, _: Vector3) -> Vector3 {
+        unimplemented!();
     }
 
     fn intersect_with_normal(&self, ray: Ray) -> Option<(f64, Vector3)> {
         let (dir, origin): Ray = ray;
         let moved_dir = dir.rotate_inv(self.rotx, self.roty);
         let moved_origin = (origin - self.center).rotate_inv(self.rotx, self.roty);
+
         return self.intersect_origin((moved_dir, moved_origin))
-            .map(|s| (s, self.normal(moved_origin + (moved_dir * s))));
+            .map(|s| {
+                (s, self.normal_origin(moved_origin + (moved_dir * s)).rotate(self.rotx, self.roty))
+            });
     }
 }
